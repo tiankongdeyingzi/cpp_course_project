@@ -1,0 +1,120 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.17"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						2
+					]
+				},
+				{
+					"build" : "godot-cpp",
+					"jsonFile" : "directory-godot-cpp-Debug-f3111bd4697ae0e37c98.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.17"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "godot-cpp",
+					"targetIndexes" : 
+					[
+						1,
+						3
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "godot-cpp-template",
+					"targetIndexes" : 
+					[
+						0,
+						2
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "godot-cpp",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						1,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "EXTENSION-NAME::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-EXTENSION-NAME-Debug-4207b8c4bbdfbd9f9276.json",
+					"name" : "EXTENSION-NAME",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "generate_bindings::@4487305cb972aeb5fb22",
+					"jsonFile" : "target-generate_bindings-Debug-5e71fa2b5f47d1973255.json",
+					"name" : "generate_bindings",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "generate_doc_source::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-generate_doc_source-Debug-6f857ae269008af9b006.json",
+					"name" : "generate_doc_source",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "godot-cpp::@4487305cb972aeb5fb22",
+					"jsonFile" : "target-godot-cpp-Debug-4f7a4da58ae9b5fd71bc.json",
+					"name" : "godot-cpp",
+					"projectIndex" : 1
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "D:/GodotProject/cpp_course_project/build",
+		"source" : "D:/GodotProject/cpp_course_project"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 8
+	}
+}
