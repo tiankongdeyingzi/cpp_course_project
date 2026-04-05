@@ -36,6 +36,8 @@ public:
     void set_move_speed(float speed);
     float get_jump_force() const;
     void set_jump_force(float force);
+
+    
 };
 
 } // namespace godot

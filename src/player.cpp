@@ -98,4 +98,4 @@ void Player::set_move_speed(float speed) { move_speed = speed; }
 float Player::get_jump_force() const { return jump_force; }
 void Player::set_jump_force(float force) { jump_force = force; }
 
-} // namespace godot
+}
