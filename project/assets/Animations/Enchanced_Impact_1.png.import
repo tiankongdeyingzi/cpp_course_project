@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cuw75ktxkqq1o"
-path="res://.godot/imported/Side_Jump.png-e8e4ae8ba11df7ff1d3a8c3994ce2b6f.ctex"
+uid="uid://cw21vorrjc5ed"
+path="res://.godot/imported/Enchanced_Impact_1.png-e3ee4d87b6203e3208dfab000710b7f1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Animations1/Side_Jump.png"
-dest_files=["res://.godot/imported/Side_Jump.png-e8e4ae8ba11df7ff1d3a8c3994ce2b6f.ctex"]
+source_file="res://assets/Animations/Enchanced_Impact_1.png"
+dest_files=["res://.godot/imported/Enchanced_Impact_1.png-e3ee4d87b6203e3208dfab000710b7f1.ctex"]
 
 [params]
 

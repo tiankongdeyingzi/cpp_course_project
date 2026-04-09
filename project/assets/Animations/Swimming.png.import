@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cv6pnehkw2mrr"
-path="res://.godot/imported/Landing.png-2d200885d522883cb20be0718ed24f02.ctex"
+uid="uid://b2qsfk2r4ivn"
+path="res://.godot/imported/Swimming.png-909bd838ed684741202ba353d34aa954.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Animations1/Landing.png"
-dest_files=["res://.godot/imported/Landing.png-2d200885d522883cb20be0718ed24f02.ctex"]
+source_file="res://assets/Animations/Swimming.png"
+dest_files=["res://.godot/imported/Swimming.png-909bd838ed684741202ba353d34aa954.ctex"]
 
 [params]
 

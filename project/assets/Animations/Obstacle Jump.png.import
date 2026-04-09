@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d6qsgjqg2vnj"
-path="res://.godot/imported/Swimming_Dive.png-2a408d4b9c060bddd3d74db331165ca6.ctex"
+uid="uid://dey2mll7c8dn3"
+path="res://.godot/imported/Obstacle Jump.png-cb8a9b7a1f14712bef3c7b61356071a4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Animations1/Swimming_Dive.png"
-dest_files=["res://.godot/imported/Swimming_Dive.png-2a408d4b9c060bddd3d74db331165ca6.ctex"]
+source_file="res://assets/Animations/Obstacle Jump.png"
+dest_files=["res://.godot/imported/Obstacle Jump.png-cb8a9b7a1f14712bef3c7b61356071a4.ctex"]
 
 [params]
 

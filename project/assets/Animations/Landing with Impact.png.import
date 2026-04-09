@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dn3c2wwkntmba"
-path="res://.godot/imported/Platform Jump.png-d246957068dd171ec3a4a905357b8822.ctex"
+uid="uid://bffaq5f1nhagv"
+path="res://.godot/imported/Landing with Impact.png-4c8372ff504b2fb5975f0a1a6eaf6314.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Animations1/Platform Jump.png"
-dest_files=["res://.godot/imported/Platform Jump.png-d246957068dd171ec3a4a905357b8822.ctex"]
+source_file="res://assets/Animations/Landing with Impact.png"
+dest_files=["res://.godot/imported/Landing with Impact.png-4c8372ff504b2fb5975f0a1a6eaf6314.ctex"]
 
 [params]
 

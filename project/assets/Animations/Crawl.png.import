@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b7lv3y3q16fsd"
-path="res://.godot/imported/Wall Jump.png-bc6921a296e24529938f669bd4e80a41.ctex"
+uid="uid://5g23gh41qh1j"
+path="res://.godot/imported/Crawl.png-c0c25c6019ba078a26d177bd47a2d7c5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Animations1/Wall Jump.png"
-dest_files=["res://.godot/imported/Wall Jump.png-bc6921a296e24529938f669bd4e80a41.ctex"]
+source_file="res://assets/Animations/Crawl.png"
+dest_files=["res://.godot/imported/Crawl.png-c0c25c6019ba078a26d177bd47a2d7c5.ctex"]
 
 [params]
 

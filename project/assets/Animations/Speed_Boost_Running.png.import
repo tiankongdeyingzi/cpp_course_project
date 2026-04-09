@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bxgjma2y1ip5l"
-path="res://.godot/imported/Jumping.png-bc06aa0b5113cff64ea261e5e94c8984.ctex"
+uid="uid://di46vsn86xny3"
+path="res://.godot/imported/Speed_Boost_Running.png-1a2edfcd9ccf546884dfff837bebc8b3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Animations1/Jumping.png"
-dest_files=["res://.godot/imported/Jumping.png-bc06aa0b5113cff64ea261e5e94c8984.ctex"]
+source_file="res://assets/Animations/Speed_Boost_Running.png"
+dest_files=["res://.godot/imported/Speed_Boost_Running.png-1a2edfcd9ccf546884dfff837bebc8b3.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dey2mll7c8dn3"
-path="res://.godot/imported/Obstacle Jump.png-1994d2be395fc4f1ec194664d5724dee.ctex"
+uid="uid://b50xgxj1ch4ck"
+path="res://.godot/imported/Punch_2.png-1ebfb6354b53d1b1f7ad88e293287750.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Animations1/Obstacle Jump.png"
-dest_files=["res://.godot/imported/Obstacle Jump.png-1994d2be395fc4f1ec194664d5724dee.ctex"]
+source_file="res://assets/Animations/Punch_2.png"
+dest_files=["res://.godot/imported/Punch_2.png-1ebfb6354b53d1b1f7ad88e293287750.ctex"]
 
 [params]
 

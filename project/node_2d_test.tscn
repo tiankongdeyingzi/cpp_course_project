@@ -1,17 +1,18 @@
 [gd_scene format=3 uid="uid://tr0upq4vu56w"]
 
-[ext_resource type="Texture2D" uid="uid://batf3pnnft2og" path="res://assets/Animations1/Crouch.png" id="2_wtfh1"]
-[ext_resource type="Texture2D" uid="uid://2imbi7kkjhw5" path="res://assets/Animations1/Descending_Ladder.png" id="3_htihw"]
-[ext_resource type="Texture2D" uid="uid://b6irxkeackt65" path="res://assets/Animations1/Falling.png" id="4_t5m10"]
-[ext_resource type="Texture2D" uid="uid://di46vsn86xny3" path="res://assets/Animations1/Speed_Boost_Running.png" id="4_wtfh1"]
-[ext_resource type="Texture2D" uid="uid://dey2mll7c8dn3" path="res://assets/Animations1/Obstacle Jump.png" id="6_kt7iw"]
-[ext_resource type="Texture2D" uid="uid://ks54rjwx5d0v" path="res://assets/Animations1/Roll.png" id="6_t7mhe"]
-[ext_resource type="Texture2D" uid="uid://cv6pnehkw2mrr" path="res://assets/Animations1/Landing.png" id="6_wtfh1"]
-[ext_resource type="Texture2D" uid="uid://7r8h6y4vp55a" path="res://assets/Animations1/Running.png" id="7_yfoca"]
-[ext_resource type="Texture2D" uid="uid://diaeyp3mly17d" path="res://assets/Animations1/Stop_Running.png" id="8_s8wud"]
-[ext_resource type="Texture2D" uid="uid://c3am463y2vwfs" path="res://assets/Animations1/Upward Jump.png" id="9_knks7"]
-[ext_resource type="Texture2D" uid="uid://b2o2ekyfdnp3j" path="res://assets/Animations1/Climbing_Ladder.png" id="10_mq3j2"]
-[ext_resource type="Texture2D" uid="uid://bey6kmgkxqd6a" path="res://assets/Animations1/Walking.png" id="11_kw1wa"]
+[ext_resource type="Texture2D" uid="uid://batf3pnnft2og" path="res://assets/Animations/Crouch.png" id="2_wtfh1"]
+[ext_resource type="Texture2D" uid="uid://2imbi7kkjhw5" path="res://assets/Animations/Descending_Ladder.png" id="3_htihw"]
+[ext_resource type="Texture2D" uid="uid://b6irxkeackt65" path="res://assets/Animations/Falling.png" id="4_t5m10"]
+[ext_resource type="Texture2D" uid="uid://di46vsn86xny3" path="res://assets/Animations/Speed_Boost_Running.png" id="4_wtfh1"]
+[ext_resource type="Texture2D" uid="uid://ks54rjwx5d0v" path="res://assets/Animations/Roll.png" id="6_t7mhe"]
+[ext_resource type="Texture2D" uid="uid://cv6pnehkw2mrr" path="res://assets/Animations/Landing.png" id="6_wtfh1"]
+[ext_resource type="Texture2D" uid="uid://w3hl0ys5br53" path="res://assets/Animations/Punch_1.png" id="7_htihw"]
+[ext_resource type="Texture2D" uid="uid://7r8h6y4vp55a" path="res://assets/Animations/Running.png" id="7_yfoca"]
+[ext_resource type="Texture2D" uid="uid://diaeyp3mly17d" path="res://assets/Animations/Stop_Running.png" id="8_s8wud"]
+[ext_resource type="Texture2D" uid="uid://b50xgxj1ch4ck" path="res://assets/Animations/Punch_2.png" id="8_t5m10"]
+[ext_resource type="Texture2D" uid="uid://c3am463y2vwfs" path="res://assets/Animations/Upward Jump.png" id="9_knks7"]
+[ext_resource type="Texture2D" uid="uid://b2o2ekyfdnp3j" path="res://assets/Animations/Climbing_Ladder.png" id="10_mq3j2"]
+[ext_resource type="Texture2D" uid="uid://bey6kmgkxqd6a" path="res://assets/Animations/Walking.png" id="11_kw1wa"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_eobj5"]
 radius = 8.0
@@ -202,32 +203,36 @@ atlas = ExtResource("6_wtfh1")
 region = Rect2(640, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_tdykn"]
-atlas = ExtResource("6_kt7iw")
+atlas = ExtResource("7_htihw")
 region = Rect2(0, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_d2q12"]
-atlas = ExtResource("6_kt7iw")
+atlas = ExtResource("7_htihw")
 region = Rect2(128, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2b52k"]
-atlas = ExtResource("6_kt7iw")
+atlas = ExtResource("7_htihw")
 region = Rect2(256, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_kfrty"]
-atlas = ExtResource("6_kt7iw")
+atlas = ExtResource("7_htihw")
 region = Rect2(384, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_d4vkd"]
-atlas = ExtResource("6_kt7iw")
+atlas = ExtResource("7_htihw")
 region = Rect2(512, 0, 128, 128)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_fa57v"]
-atlas = ExtResource("6_kt7iw")
-region = Rect2(640, 0, 128, 128)
+[sub_resource type="AtlasTexture" id="AtlasTexture_1l4eu"]
+atlas = ExtResource("8_t5m10")
+region = Rect2(0, 0, 128, 128)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_e2t5o"]
-atlas = ExtResource("6_kt7iw")
-region = Rect2(768, 0, 128, 128)
+[sub_resource type="AtlasTexture" id="AtlasTexture_ssmm8"]
+atlas = ExtResource("8_t5m10")
+region = Rect2(128, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fal1s"]
+atlas = ExtResource("8_t5m10")
+region = Rect2(256, 0, 128, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wtfh1"]
 atlas = ExtResource("6_t7mhe")
@@ -647,29 +652,37 @@ animations = [{
 "speed": 5.0
 }, {
 "frames": [{
-"duration": 1.0,
+"duration": 0.9,
 "texture": SubResource("AtlasTexture_tdykn")
 }, {
-"duration": 1.0,
+"duration": 0.8,
 "texture": SubResource("AtlasTexture_d2q12")
 }, {
-"duration": 1.0,
+"duration": 0.8,
 "texture": SubResource("AtlasTexture_2b52k")
 }, {
-"duration": 1.0,
+"duration": 0.8,
 "texture": SubResource("AtlasTexture_kfrty")
 }, {
-"duration": 1.0,
+"duration": 0.9,
 "texture": SubResource("AtlasTexture_d4vkd")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_fa57v")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_e2t5o")
 }],
 "loop": true,
-"name": &"obstacle",
+"name": &"punch_1",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1l4eu")
+}, {
+"duration": 0.9,
+"texture": SubResource("AtlasTexture_ssmm8")
+}, {
+"duration": 0.9,
+"texture": SubResource("AtlasTexture_fal1s")
+}],
+"loop": true,
+"name": &"punch_2",
 "speed": 5.0
 }, {
 "frames": [{
@@ -891,6 +904,13 @@ func _process(delta: float) -> void:
 	pass
 "
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_htihw"]
+radius = 13.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_htihw"]
+radius = 8.0
+height = 50.0
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_t7mhe"]
 size = Vector2(1013, 20)
 
@@ -906,9 +926,27 @@ shape = SubResource("CapsuleShape2D_eobj5")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Player" unique_id=499827518]
 sprite_frames = SubResource("SpriteFrames_xnn3s")
-animation = &"crouch_down"
+animation = &"punch_1"
+frame = 2
+frame_progress = 0.05555604
 speed_scale = 1.5
 script = SubResource("GDScript_wtfh1")
+
+[node name="AttackArea" type="Area2D" parent="Player" unique_id=118917593]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player/AttackArea" unique_id=1457656640]
+position = Vector2(0, 16)
+shape = SubResource("CircleShape2D_htihw")
+
+[node name="HurtBox" type="Area2D" parent="Player" unique_id=1880661726]
+collision_layer = 2
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player/HurtBox" unique_id=630169543]
+position = Vector2(0, 25)
+shape = SubResource("CapsuleShape2D_htihw")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=515266062]
 

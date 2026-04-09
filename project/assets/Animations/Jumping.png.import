@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bcpsc6da4y50i"
-path="res://.godot/imported/Jump witn Strike.png-b94c330c28a127f82cb1e862d0626999.ctex"
+uid="uid://bxgjma2y1ip5l"
+path="res://.godot/imported/Jumping.png-b75c3ff65af7633ebe3fa275af8ea054.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Animations1/Jump witn Strike.png"
-dest_files=["res://.godot/imported/Jump witn Strike.png-b94c330c28a127f82cb1e862d0626999.ctex"]
+source_file="res://assets/Animations/Jumping.png"
+dest_files=["res://.godot/imported/Jumping.png-b75c3ff65af7633ebe3fa275af8ea054.ctex"]
 
 [params]
 

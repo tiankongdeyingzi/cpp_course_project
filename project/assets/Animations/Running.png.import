@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b2o2ekyfdnp3j"
-path="res://.godot/imported/Climbing_Ladder.png-b19c3b551e1e618d8e04024844111d78.ctex"
+uid="uid://7r8h6y4vp55a"
+path="res://.godot/imported/Running.png-d6b1cefc0b1c162c55ab30dc0e99b8dd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Animations1/Climbing_Ladder.png"
-dest_files=["res://.godot/imported/Climbing_Ladder.png-b19c3b551e1e618d8e04024844111d78.ctex"]
+source_file="res://assets/Animations/Running.png"
+dest_files=["res://.godot/imported/Running.png-d6b1cefc0b1c162c55ab30dc0e99b8dd.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://2imbi7kkjhw5"
-path="res://.godot/imported/Descending_Ladder.png-b7274245b739f6f7748e7247e15ae2fc.ctex"
+uid="uid://bcpsc6da4y50i"
+path="res://.godot/imported/Jump witn Strike.png-66eab359e67afee49f17aca5b8f8de22.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Animations1/Descending_Ladder.png"
-dest_files=["res://.godot/imported/Descending_Ladder.png-b7274245b739f6f7748e7247e15ae2fc.ctex"]
+source_file="res://assets/Animations/Jump witn Strike.png"
+dest_files=["res://.godot/imported/Jump witn Strike.png-66eab359e67afee49f17aca5b8f8de22.ctex"]
 
 [params]
 

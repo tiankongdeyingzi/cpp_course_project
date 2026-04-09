@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://di46vsn86xny3"
-path="res://.godot/imported/Speed_Boost_Running.png-62784cfd91b093d880af27ccac2d6552.ctex"
+uid="uid://2imbi7kkjhw5"
+path="res://.godot/imported/Descending_Ladder.png-e2fd41c4b9028651a6769d08fee1ff66.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Animations1/Speed_Boost_Running.png"
-dest_files=["res://.godot/imported/Speed_Boost_Running.png-62784cfd91b093d880af27ccac2d6552.ctex"]
+source_file="res://assets/Animations/Descending_Ladder.png"
+dest_files=["res://.godot/imported/Descending_Ladder.png-e2fd41c4b9028651a6769d08fee1ff66.ctex"]
 
 [params]
 

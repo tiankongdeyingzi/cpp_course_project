@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c3am463y2vwfs"
-path="res://.godot/imported/Upward Jump.png-956dde2fac1fce6f5e5ef70918d5a8fe.ctex"
+uid="uid://b2o2ekyfdnp3j"
+path="res://.godot/imported/Climbing_Ladder.png-e94f72278f96a7a8567319ade6339d36.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Animations1/Upward Jump.png"
-dest_files=["res://.godot/imported/Upward Jump.png-956dde2fac1fce6f5e5ef70918d5a8fe.ctex"]
+source_file="res://assets/Animations/Climbing_Ladder.png"
+dest_files=["res://.godot/imported/Climbing_Ladder.png-e94f72278f96a7a8567319ade6339d36.ctex"]
 
 [params]
 

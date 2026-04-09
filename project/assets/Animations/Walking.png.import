@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dgtjlvv1rc8ji"
-path="res://.godot/imported/Leap.png-69053bc1a74f80be331c81099703900d.ctex"
+uid="uid://bey6kmgkxqd6a"
+path="res://.godot/imported/Walking.png-8ba9c2ce1d78f63e7f0040fa35142d88.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Animations1/Leap.png"
-dest_files=["res://.godot/imported/Leap.png-69053bc1a74f80be331c81099703900d.ctex"]
+source_file="res://assets/Animations/Walking.png"
+dest_files=["res://.godot/imported/Walking.png-8ba9c2ce1d78f63e7f0040fa35142d88.ctex"]
 
 [params]
 
