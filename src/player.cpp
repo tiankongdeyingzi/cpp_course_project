@@ -15,7 +15,6 @@ namespace godot {
 Player::Player() : 
     walk_speed(200.0f),
     run_speed(400.0f),
-    ladder_speed(150.0f),
     jump_force(400.0f),
     forward_jump_force(350.0f),
     up_jump_force(450.0f),
@@ -26,12 +25,13 @@ Player::Player() :
     is_crouching(false),       // 下蹲状态
     crouch_timer(0.0f),        // 下蹲计时器
     crouch_duration(0.3f),     // 下蹲动画持续时间（0.3秒）
-    is_on_ladder(false),
-    is_climbing(false),
     is_rolling(false),
     is_dead(false),
     is_running(false),
     is_sprite_flipped_h(false),
+    is_invincible(false),      // 无敌状态
+    invincible_timer(0.0f),    // 无敌计时器
+    invincible_duration(0.3f), // 无敌持续时间（0.3秒）
     current_attack_type(NO_ATTACK),  // 攻击状态
     attack_timer(0.0f),
     attack_duration(0.4f),     // 攻击动画持续时间
@@ -47,14 +47,15 @@ Player::Player() :
     is_landing(false),
     landing_timer(0.0f),
     input_direction(0.0f),
-    vertical_input(0.0f),
+    vertical_input(0.0f),      // 保留但不再使用
     jump_pressed(false),
     run_pressed(false),
     crouch_pressed(false),
     crouch_was_pressed(false),
     roll_pressed(false),
-    left_mouse_pressed(false),   // 鼠标左键
-    right_mouse_pressed(false),  // 鼠标右键
+    attack_1_pressed(false),   // 攻击1
+    attack_2_pressed(false),   // 攻击2
+    player_id(1),              // 默认玩家1
     animated_sprite(nullptr),
     attack_area(nullptr),
     hurtbox_area(nullptr),       // 引用手动创建的HurtBox节点
@@ -96,6 +97,15 @@ void Player::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_attack_knockback"), &Player::get_attack_knockback);
     ClassDB::bind_method(D_METHOD("set_attack_knockback", "knockback"), &Player::set_attack_knockback);
     
+    // 无敌帧属性
+    ClassDB::bind_method(D_METHOD("get_invincible_duration"), &Player::get_invincible_duration);
+    ClassDB::bind_method(D_METHOD("set_invincible_duration", "duration"), &Player::set_invincible_duration);
+    ClassDB::bind_method(D_METHOD("get_is_invincible"), &Player::get_is_invincible);
+    
+    // 玩家标识
+    ClassDB::bind_method(D_METHOD("get_player_id"), &Player::get_player_id);
+    ClassDB::bind_method(D_METHOD("set_player_id", "id"), &Player::set_player_id);
+    
     // 血量属性绑定
     ClassDB::bind_method(D_METHOD("take_damage", "damage"), &Player::take_damage);
     ClassDB::bind_method(D_METHOD("heal", "amount"), &Player::heal);
@@ -136,6 +146,12 @@ void Player::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "attack_width"), "set_attack_width", "get_attack_width");
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "attack_knockback"), "set_attack_knockback", "get_attack_knockback");
     
+    // 无敌帧属性
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "invincible_duration"), "set_invincible_duration", "get_invincible_duration");
+    
+    // 玩家标识
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "player_id"), "set_player_id", "get_player_id");
+    
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "animated_sprite_path", PROPERTY_HINT_NODE_PATH_TO_EDITED_NODE, "AnimatedSprite2D"), 
                   "set_animated_sprite_path", "get_animated_sprite_path");
 }
@@ -172,6 +188,8 @@ void Player::_ready() {
     if (!hurtbox_area) {
         UtilityFunctions::printerr("Player: 未能找到手动创建的HurtBox节点。请确保在场景中为该Player添加了名为'HurtBox'的Area2D子节点。");
     }
+    
+    UtilityFunctions::print(vformat("玩家 %d 初始化完成", player_id));
 }
 
 void Player::_physics_process(double delta) {
@@ -232,6 +250,8 @@ void Player::_physics_process(double delta) {
         roll_timer -= delta;
         if (roll_timer <= 0) {
             is_rolling = false;
+            // 翻滚结束时，启动无敌帧
+            enable_invincibility();
         }
     }
     
@@ -247,44 +267,190 @@ void Player::_physics_process(double delta) {
         }
     }
     
+    // 16. 更新无敌帧
+    update_invincibility(delta);
+    
     // 调试输出
     static int frame_count = 0;
     frame_count++;
-    if (frame_count % 30 == 0) {
+    if (frame_count % 60 == 0) {
         UtilityFunctions::print(vformat(
-            "状态: 地面=%s, 攻击=%s(%d), 血量=%.1f/%.1f, 计时器=%.2f", 
+            "玩家%d: 地面=%s, 攻击=%s(%d), 翻滚=%s, 无敌=%s(%.2f), 血量=%.1f/%.1f", 
+            player_id,
             is_on_floor() ? "是" : "否",
             is_attacking ? "是" : "否",
             (int)current_attack_type,
+            is_rolling ? "是" : "否",
+            is_invincible ? "是" : "否",
+            invincible_timer,
             current_health,
-            max_health,
-            attack_timer
+            max_health
         ));
+    }
+}
+
+// 无敌帧控制方法
+void Player::enable_invincibility() {
+    is_invincible = true;
+    invincible_timer = invincible_duration;
+    
+    if (hurtbox_area) {
+        // 禁用HurtBox的碰撞检测
+        hurtbox_area->set_collision_layer(0);
+        hurtbox_area->set_collision_mask(0);
+    }
+    
+    // 更新HurtBox可见性（闪烁效果）
+    update_hurtbox_visibility();
+    
+    UtilityFunctions::print(vformat("玩家%d进入无敌状态", player_id));
+}
+
+void Player::disable_invincibility() {
+    is_invincible = false;
+    invincible_timer = 0.0f;
+    
+    if (hurtbox_area) {
+        // 重新启用HurtBox的碰撞检测
+        // 假设HurtBox在第2层，AttackArea检测第2层
+        hurtbox_area->set_collision_layer(2);
+        hurtbox_area->set_collision_mask(0);
+        
+        // 确保HurtBox可见
+        hurtbox_area->set_visible(true);
+    }
+    
+    UtilityFunctions::print(vformat("玩家%d离开无敌状态", player_id));
+}
+
+void Player::update_invincibility(double delta) {
+    if (is_invincible) {
+        invincible_timer -= delta;
+        
+        // 更新HurtBox闪烁效果
+        update_hurtbox_visibility();
+        
+        if (invincible_timer <= 0) {
+            disable_invincibility();
+        }
+    }
+}
+
+void Player::update_hurtbox_visibility() {
+    if (!hurtbox_area) return;
+    
+    // 简单的闪烁效果：每0.1秒切换一次可见性
+    static float blink_timer = 0.0f;
+    blink_timer += 0.016f; // 假设60FPS，每帧0.016秒
+    
+    if (blink_timer >= 0.1f) { // 每0.1秒闪烁一次
+        blink_timer = 0.0f;
+        bool is_visible = hurtbox_area->is_visible();
+        hurtbox_area->set_visible(!is_visible);
     }
 }
 
 void Player::handle_input() {
     Input *input = Input::get_singleton();
     
+    // 构建动作名称后缀
+    String suffix = (player_id == 1) ? "_p1" : "_p2";
+    
+    // 检查连接的手柄数量
+    Array connected_joypads = input->get_connected_joypads();
+    int connected_count = connected_joypads.size();
+    
+    // 调试：打印连接的手柄
+    static bool printed_joypads = false;
+    if (!printed_joypads) {
+        UtilityFunctions::print(vformat("连接的手柄数量: %d", connected_count));
+        for (int i = 0; i < connected_count; i++) {
+            UtilityFunctions::print(vformat("  手柄%d: 设备索引 %d", i, (int)connected_joypads[i]));
+        }
+        printed_joypads = true;
+    }
+    
+    // 如果只有一个手柄连接，玩家2使用键盘
+    if (player_id == 2 && connected_count < 2) {
+        // 玩家2使用键盘（临时方案）
+        handle_input_keyboard();
+    } else {
+        // 如果手柄数量足够，使用手柄输入
+        handle_input_gamepad(suffix);
+    }
+}
+
+// 手柄输入处理
+void Player::handle_input_gamepad(const String& suffix) {
+    Input *input = Input::get_singleton();
+    
     // 水平移动
     input_direction = 0.0f;
-    if (input->is_action_pressed("move_left")) input_direction -= 1.0f;
-    if (input->is_action_pressed("move_right")) input_direction += 1.0f;
+    if (input->is_action_pressed("move_left" + suffix)) {
+        input_direction -= 1.0f;
+        // UtilityFunctions::print(vformat("玩家%d 向左移动 (手柄)", player_id));
+    }
+    if (input->is_action_pressed("move_right" + suffix)) {
+        input_direction += 1.0f;
+        // UtilityFunctions::print(vformat("玩家%d 向右移动 (手柄)", player_id));
+    }
     
     // 垂直移动
     vertical_input = 0.0f;
-    if (input->is_action_pressed("move_up")) vertical_input += 1.0f;
-    if (input->is_action_pressed("move_down")) vertical_input -= 1.0f;
+    if (input->is_action_pressed("move_up" + suffix)) vertical_input += 1.0f;
+    if (input->is_action_pressed("move_down" + suffix)) vertical_input -= 1.0f;
     
     // 动作按键
-    jump_pressed = input->is_action_just_pressed("jump");
-    run_pressed = input->is_action_pressed("run");
-    crouch_pressed = input->is_action_pressed("crouch");
-    roll_pressed = input->is_action_just_pressed("roll");
+    jump_pressed = input->is_action_just_pressed("jump" + suffix);
+    if (jump_pressed) {
+        UtilityFunctions::print(vformat("玩家%d 按下跳跃 (手柄)", player_id));
+    }
     
-    // 鼠标按键
-    left_mouse_pressed = input->is_action_just_pressed("attack_left");
-    right_mouse_pressed = input->is_action_just_pressed("attack_right");
+    run_pressed = input->is_action_pressed("run" + suffix);
+    crouch_pressed = input->is_action_pressed("crouch" + suffix);
+    roll_pressed = input->is_action_just_pressed("roll" + suffix);
+    
+    // 攻击按键
+    attack_1_pressed = input->is_action_just_pressed("attack_1" + suffix);
+    attack_2_pressed = input->is_action_just_pressed("attack_2" + suffix);
+}
+
+// 键盘输入处理（备用方案）
+void Player::handle_input_keyboard() {
+    Input *input = Input::get_singleton();
+    
+    // 玩家2使用键盘控制
+    if (player_id == 2) {
+        // 水平移动 - 方向键
+        input_direction = 0.0f;
+        if (input->is_action_pressed("ui_left")) {
+            input_direction -= 1.0f;   // 左箭头
+            // UtilityFunctions::print("玩家2 向左移动 (键盘)");
+        }
+        if (input->is_action_pressed("ui_right")) {
+            input_direction += 1.0f;  // 右箭头
+            // UtilityFunctions::print("玩家2 向右移动 (键盘)");
+        }
+        
+        // 垂直移动
+        vertical_input = 0.0f;
+        if (input->is_action_pressed("ui_up")) vertical_input += 1.0f;     // 上箭头
+        if (input->is_action_pressed("ui_down")) vertical_input -= 1.0f;   // 下箭头
+        
+        // 动作按键
+        jump_pressed = input->is_action_just_pressed("ui_select");   // 回车键
+        if (jump_pressed) {
+            UtilityFunctions::print("玩家2 按下跳跃 (键盘)");
+        }
+        
+        run_pressed = input->is_action_pressed("ui_accept");         // Shift键
+        crouch_pressed = input->is_action_pressed("ui_ctrl");        // Ctrl键
+        roll_pressed = input->is_action_just_pressed("ui_home");     // Home键
+        
+        // 攻击按键
+        attack_1_pressed = input->is_action_just_pressed("ui_end");     // End键
+        attack_2_pressed = input->is_action_just_pressed("ui_pageup");  // PageUp键
+    }
 }
 
 void Player::apply_movement(double delta) {
@@ -296,17 +462,13 @@ void Player::apply_movement(double delta) {
     Vector2 velocity = get_velocity();
     
     // 应用重力
-    if (!is_climbing && !is_dead) {
+    if (!is_dead) {
         velocity.y += gravity * delta;
     }
     
     if (is_rolling) {
         // 翻滚移动
         velocity.x = input_direction * roll_speed;
-    } else if (is_climbing) {
-        // 梯子移动
-        velocity.x = 0;
-        velocity.y = -vertical_input * ladder_speed;
     } else {
         // 根据是否在地面，选择不同的速度策略
         if (is_on_floor()) {
@@ -357,7 +519,7 @@ void Player::handle_crouch(double delta) {
             // 开始下蹲
             is_crouching = true;
             crouch_timer = crouch_duration;
-            UtilityFunctions::print("开始下蹲");
+            UtilityFunctions::print(vformat("玩家%d开始下蹲", player_id));
         }
     }
     
@@ -366,7 +528,7 @@ void Player::handle_crouch(double delta) {
         if (is_crouching && crouch_timer <= 0) {
             // 开始起身，设置计时器但不改变is_crouching状态
             crouch_timer = crouch_duration;
-            UtilityFunctions::print("开始起身，设置计时器");
+            UtilityFunctions::print(vformat("玩家%d开始起身，设置计时器", player_id));
         }
     }
 }
@@ -381,13 +543,13 @@ void Player::handle_attack(double delta) {
         }
     }
     
-    // 检测鼠标左键按下（拳击1）
-    if (left_mouse_pressed && !is_attacking && !is_crouching) {
+    // 检测攻击1按下（原拳击1）
+    if (attack_1_pressed && !is_attacking && !is_crouching) {
         start_attack(PUNCH_1);
     }
     
-    // 检测鼠标右键按下（拳击2）
-    if (right_mouse_pressed && !is_attacking && !is_crouching) {
+    // 检测攻击2按下（原拳击2）
+    if (attack_2_pressed && !is_attacking && !is_crouching) {
         start_attack(PUNCH_2);
     }
 }
@@ -405,7 +567,7 @@ void Player::start_attack(AttackType attack_type) {
     // 启用攻击检测
     enable_attack_detection();
     
-    UtilityFunctions::print(vformat("开始攻击: %s", attack_type == PUNCH_1 ? "左拳" : "右拳"));
+    UtilityFunctions::print(vformat("玩家%d开始攻击: %s", player_id, attack_type == PUNCH_1 ? "左拳" : "右拳"));
 }
 
 void Player::end_attack() {
@@ -419,7 +581,7 @@ void Player::end_attack() {
     // 重置命中目标列表
     reset_hit_targets();
     
-    UtilityFunctions::print("攻击结束");
+    UtilityFunctions::print(vformat("玩家%d攻击结束", player_id));
 }
 
 void Player::update_attack_area_position() {
@@ -485,7 +647,7 @@ void Player::process_hit_detection() {
         
         if (!already_hit) {
             // 处理命中
-            UtilityFunctions::print(vformat("命中目标: %s", owner->get_name()));
+            UtilityFunctions::print(vformat("玩家%d命中目标: %s", player_id, owner->get_name()));
             
             // 添加目标到已命中列表
             hit_targets.append(Variant(owner));
@@ -531,7 +693,7 @@ void Player::apply_attack_knockback(Node* target) {
     velocity += knockback_direction;
     character->set_velocity(velocity);
     
-    UtilityFunctions::print(vformat("对目标应用击退: %s", target->get_name()));
+    UtilityFunctions::print(vformat("玩家%d对目标应用击退: %s", player_id, target->get_name()));
 }
 
 void Player::update_state() {
@@ -564,21 +726,9 @@ void Player::update_state() {
         return;
     }
     
-    // 梯子状态
-    if (is_climbing) {
-        if (vertical_input > 0) {
-            play_animation("up_ladder");
-        } else if (vertical_input < 0) {
-            play_animation("down_ladder");
-        } else {
-            play_animation("idle");
-        }
-        return;
-    }
-    
     // 处理跳跃触发
     if (jump_pressed && is_on_floor() && !is_jumping && !is_landing && !is_crouching && !is_attacking) {
-        UtilityFunctions::print("检测到跳跃按键，当前奔跑状态: " + String(is_running ? "是" : "否"));
+        UtilityFunctions::print(vformat("玩家%d检测到跳跃按键，当前奔跑状态: %s", player_id, is_running ? "是" : "否"));
         if (is_running) {
             start_jump(FORWARD_JUMP);
         } else {
@@ -626,7 +776,7 @@ void Player::update_state() {
             } else {
                 // 按键已松开，结束下蹲状态
                 is_crouching = false;
-                UtilityFunctions::print("起身动画播放完毕，结束下蹲状态");
+                UtilityFunctions::print(vformat("玩家%d起身动画播放完毕，结束下蹲状态", player_id));
             }
         }
         return;
@@ -646,6 +796,8 @@ void Player::update_state() {
     if (roll_pressed && is_on_floor() && !is_rolling && !is_crouching && !is_attacking) {
         is_rolling = true;
         roll_timer = roll_duration;
+        // 翻滚开始时立即启用无敌状态
+        enable_invincibility();
     }
     
     // 奔跑状态更新
@@ -677,10 +829,10 @@ void Player::play_animation(const String& anim_name, bool force_restart) {
         try {
             if (force_restart || animated_sprite->get_animation() != StringName(anim_name)) {
                 animated_sprite->play(anim_name);
-                UtilityFunctions::print("播放crouch_down动画");
+                UtilityFunctions::print(vformat("玩家%d播放crouch_down动画", player_id));
             }
         } catch (...) {
-            UtilityFunctions::printerr("播放crouch_down动画时发生异常, 跳过");
+            UtilityFunctions::printerr(vformat("玩家%d播放crouch_down动画时发生异常, 跳过", player_id));
         }
         return;
     }
@@ -692,7 +844,7 @@ void Player::play_animation(const String& anim_name, bool force_restart) {
     
     // 检查动画是否存在
     if (!sf->has_animation(anim_name)) {
-        UtilityFunctions::print(vformat("动画不存在: %s", anim_name));
+        UtilityFunctions::print(vformat("玩家%d: 动画不存在: %s", player_id, anim_name));
         return;
     }
     
@@ -702,7 +854,7 @@ void Player::play_animation(const String& anim_name, bool force_restart) {
     
     // 如果动画不同，或者强制重启，则播放新动画
     if (current_anim != target_anim || force_restart) {
-        UtilityFunctions::print(vformat("播放动画: %s", anim_name));
+        UtilityFunctions::print(vformat("玩家%d播放动画: %s", player_id, anim_name));
         animated_sprite->play(anim_name);
     }
 }
@@ -719,7 +871,7 @@ bool Player::has_animation(const String& anim_name) {
 void Player::start_jump(JumpType jump_type) {
     Vector2 velocity = get_velocity();
     
-    UtilityFunctions::print(vformat("开始跳跃，类型: %s", jump_type == FORWARD_JUMP ? "前跳" : "上跳"));
+    UtilityFunctions::print(vformat("玩家%d开始跳跃，类型: %s", player_id, jump_type == FORWARD_JUMP ? "前跳" : "上跳"));
     
     if (jump_type == FORWARD_JUMP) {
         velocity.y = -forward_jump_force;
@@ -759,43 +911,27 @@ void Player::start_landing() {
             is_running = true;
         }
         
-        UtilityFunctions::print("forward_jump着陆, 不播放着陆动画");
+        UtilityFunctions::print(vformat("玩家%dforward_jump着陆, 不播放着陆动画", player_id));
     } else {
         // 其他跳跃类型落地，播放着陆动画
         is_landing = true;
         landing_timer = 0.2f;
         play_animation("landing", true);
         current_jump_type = NO_JUMP;
-        UtilityFunctions::print("开始着陆，播放着陆动画");
+        UtilityFunctions::print(vformat("玩家%d开始着陆，播放着陆动画", player_id));
     }
 }
 
-void Player::start_climbing_ladder(bool up) {
-    is_climbing = true;
-    is_on_ladder = true;
-    set_velocity(Vector2(0, 0));
-}
-
-void Player::stop_climbing_ladder() {
-    is_climbing = false;
-    is_on_ladder = false;
-}
-
-void Player::die() {
-    is_dead = true;
-    set_velocity(Vector2(0, 0));
-    play_animation("falling", true);
-    UtilityFunctions::print("玩家死亡");
-}
-
-// 血量管理方法实现
 void Player::take_damage(float damage) {
-    if (is_dead) return;  // 已死亡不再受到伤害
+    if (is_dead || is_invincible) return;  // 已死亡或无敌状态下不再受到伤害
     
     current_health -= damage;
     
-    UtilityFunctions::print(vformat("受到伤害: %.1f, 剩余生命: %.1f/%.1f", 
-        damage, current_health, max_health));
+    UtilityFunctions::print(vformat("玩家%d受到伤害: %.1f, 剩余生命: %.1f/%.1f", 
+        player_id, damage, current_health, max_health));
+    
+    // 受到伤害时，启动短暂无敌帧
+    enable_invincibility();
     
     // 检查是否死亡
     if (current_health <= 0) {
@@ -812,46 +948,41 @@ void Player::heal(float amount) {
         current_health = max_health;
     }
     
-    UtilityFunctions::print(vformat("恢复生命: %.1f, 当前生命: %.1f/%.1f", 
-        amount, current_health, max_health));
+    UtilityFunctions::print(vformat("玩家%d恢复生命: %.1f, 当前生命: %.1f/%.1f", 
+        player_id, amount, current_health, max_health));
 }
 
 void Player::reset_health() {
     current_health = max_health;
     is_dead = false;  // 重置死亡状态
     
-    UtilityFunctions::print("生命值已重置");
+    // 确保无敌状态被重置
+    disable_invincibility();
+    
+    UtilityFunctions::print(vformat("玩家%d生命值已重置", player_id));
 }
 
-float Player::get_max_health() const { 
-    return max_health; 
-}
-
-void Player::set_max_health(float health) { 
-    max_health = health; 
-    if (current_health > max_health) {
-        current_health = max_health;
+void Player::die() {
+    is_dead = true;
+    set_velocity(Vector2(0, 0));
+    play_animation("falling", true);
+    
+    // 死亡时禁用HurtBox
+    if (hurtbox_area) {
+        hurtbox_area->set_collision_layer(0);
+        hurtbox_area->set_collision_mask(0);
     }
+    
+    UtilityFunctions::print(vformat("玩家%d死亡", player_id));
 }
 
-float Player::get_current_health() const { 
-    return current_health; 
+// 玩家标识
+int Player::get_player_id() const { 
+    return player_id; 
 }
 
-void Player::set_current_health(float health) { 
-    current_health = health; 
-    if (current_health <= 0) {
-        current_health = 0;
-        if (!is_dead) {
-            die();
-        }
-    } else if (current_health > max_health) {
-        current_health = max_health;
-    }
-}
-
-float Player::get_health_percentage() const { 
-    return (max_health > 0) ? (current_health / max_health) : 0.0f; 
+void Player::set_player_id(int id) { 
+    player_id = id; 
 }
 
 // 属性getter/setter实现
@@ -891,6 +1022,46 @@ void Player::set_attack_width(float width) {
 Vector2 Player::get_attack_knockback() const { return attack_knockback; }
 void Player::set_attack_knockback(const Vector2& knockback) { 
     attack_knockback = knockback; 
+}
+
+// 无敌帧属性getter/setter
+float Player::get_invincible_duration() const { return invincible_duration; }
+void Player::set_invincible_duration(float duration) { 
+    invincible_duration = duration; 
+}
+bool Player::get_is_invincible() const { 
+    return is_invincible; 
+}
+
+float Player::get_max_health() const { 
+    return max_health; 
+}
+
+void Player::set_max_health(float health) { 
+    max_health = health; 
+    if (current_health > max_health) {
+        current_health = max_health;
+    }
+}
+
+float Player::get_current_health() const { 
+    return current_health; 
+}
+
+void Player::set_current_health(float health) { 
+    current_health = health; 
+    if (current_health <= 0) {
+        current_health = 0;
+        if (!is_dead) {
+            die();
+        }
+    } else if (current_health > max_health) {
+        current_health = max_health;
+    }
+}
+
+float Player::get_health_percentage() const { 
+    return (max_health > 0) ? (current_health / max_health) : 0.0f; 
 }
 
 bool Player::get_is_crouching() const { return is_crouching; }

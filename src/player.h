@@ -32,7 +32,6 @@ private:
     // 移动属性
     float walk_speed;
     float run_speed;
-    float ladder_speed;
     float jump_force;
     float forward_jump_force;
     float up_jump_force;
@@ -45,12 +44,15 @@ private:
     bool is_crouching;        // 下蹲状态
     float crouch_timer;       // 下蹲计时器
     float crouch_duration;    // 下蹲动画持续时间
-    bool is_on_ladder;
-    bool is_climbing;
     bool is_rolling;
     bool is_dead;
     bool is_running;
     bool is_sprite_flipped_h;
+    
+    // 无敌帧状态
+    bool is_invincible;       // 是否处于无敌状态
+    float invincible_timer;   // 无敌计时器
+    float invincible_duration; // 无敌持续时间
     
     // 攻击状态
     AttackType current_attack_type;  // 当前攻击类型
@@ -74,14 +76,17 @@ private:
     
     // 输入状态
     float input_direction;
-    float vertical_input;
+    float vertical_input;     // 保留，但不再用于梯子
     bool jump_pressed;
     bool run_pressed;
     bool crouch_pressed;
     bool crouch_was_pressed;
     bool roll_pressed;
-    bool left_mouse_pressed;    // 鼠标左键
-    bool right_mouse_pressed;   // 鼠标右键
+    bool attack_1_pressed;    // 攻击1（原左键）
+    bool attack_2_pressed;    // 攻击2（原右键）
+    
+    // 玩家标识
+    int player_id;            // 玩家ID (1或2)
     
     // 动画控制
     AnimatedSprite2D* animated_sprite;
@@ -105,6 +110,16 @@ private:
     void disable_attack_detection();
     void process_hit_detection();
     void reset_hit_targets();
+    
+    // 无敌帧控制
+    void enable_invincibility();
+    void disable_invincibility();
+    void update_invincibility(double delta);
+    void update_hurtbox_visibility();
+
+    // 输入处理方法
+    void handle_input_gamepad(const String& suffix);
+    void handle_input_keyboard();
 
 protected:
     static void _bind_methods();
@@ -151,11 +166,11 @@ public:
     void end_jump();
     void start_landing();
     
-    // 特殊动作
-    void start_climbing_ladder(bool up);
-    void stop_climbing_ladder();
-    
     void die();
+    
+    // 玩家标识
+    int get_player_id() const;
+    void set_player_id(int id);
     
     // 属性访问
     float get_walk_speed() const;
@@ -183,6 +198,11 @@ public:
     void set_attack_width(float width);
     Vector2 get_attack_knockback() const;
     void set_attack_knockback(const Vector2& knockback);
+    
+    // 无敌帧属性
+    float get_invincible_duration() const;
+    void set_invincible_duration(float duration);
+    bool get_is_invincible() const;
     
     // 状态查询
     bool get_is_crouching() const;
