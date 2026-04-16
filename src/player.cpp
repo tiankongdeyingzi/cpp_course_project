@@ -60,7 +60,11 @@ Player::Player() :
     attack_area(nullptr),
     hurtbox_area(nullptr),       // 引用手动创建的HurtBox节点
     attack_range(50.0f),        // 攻击范围
-    attack_width(30.0f)         // 攻击宽度
+    attack_width(30.0f),         // 攻击宽度
+    normal_collision_layer(0),   // 正常碰撞层
+    roll_collision_layer(0),     // 翻滚碰撞层
+    normal_collision_mask(0),    // 正常碰撞掩码
+    roll_collision_mask(0)       // 翻滚碰撞掩码
 {}
 
 Player::~Player() {
@@ -68,6 +72,7 @@ Player::~Player() {
 }
 
 void Player::_bind_methods() {
+    // ... 绑定方法保持不变 ...
     // 基础属性
     ClassDB::bind_method(D_METHOD("get_walk_speed"), &Player::get_walk_speed);
     ClassDB::bind_method(D_METHOD("set_walk_speed", "speed"), &Player::set_walk_speed);
@@ -189,7 +194,32 @@ void Player::_ready() {
         UtilityFunctions::printerr("Player: 未能找到手动创建的HurtBox节点。请确保在场景中为该Player添加了名为'HurtBox'的Area2D子节点。");
     }
     
-    UtilityFunctions::print(vformat("玩家 %d 初始化完成", player_id));
+    // 调试：打印当前碰撞设置
+    uint32_t current_layer = get_collision_layer();
+    uint32_t current_mask = get_collision_mask();
+    UtilityFunctions::print(vformat("玩家 %d 初始化 - 初始碰撞层: %d, 初始碰撞掩码: %d", 
+        player_id, current_layer, current_mask));
+    
+    // 设置碰撞层和掩码
+    // 第1层: 环境（地面、墙壁等）
+    // 第2层: 正常玩家
+    // 第3层: 翻滚玩家
+    
+    // 正常状态：玩家在第2层，检测第1层和第2层
+    normal_collision_layer = (1 << 1);  // 第2层
+    normal_collision_mask = (1 << 0) | (1 << 1);  // 检测第1层和第2层
+    
+    // 翻滚状态：玩家移动到第3层，检测第1层
+    roll_collision_layer = (1 << 2);  // 第3层
+    roll_collision_mask = (1 << 0);   // 只检测第1层
+    
+    // 应用正常设置
+    set_collision_layer(normal_collision_layer);
+    set_collision_mask(normal_collision_mask);
+    
+    UtilityFunctions::print(vformat("玩家 %d 碰撞设置: 正常层=%d, 正常掩码=%d, 翻滚层=%d, 翻滚掩码=%d", 
+        player_id, normal_collision_layer, normal_collision_mask, 
+        roll_collision_layer, roll_collision_mask));
 }
 
 void Player::_physics_process(double delta) {
@@ -252,6 +282,8 @@ void Player::_physics_process(double delta) {
             is_rolling = false;
             // 翻滚结束时，启动无敌帧
             enable_invincibility();
+            // 翻滚结束时，恢复碰撞设置
+            set_roll_collision(false);
         }
     }
     
@@ -274,22 +306,37 @@ void Player::_physics_process(double delta) {
     static int frame_count = 0;
     frame_count++;
     if (frame_count % 60 == 0) {
+        uint32_t current_layer = get_collision_layer();
+        uint32_t current_mask = get_collision_mask();
         UtilityFunctions::print(vformat(
-            "玩家%d: 地面=%s, 攻击=%s(%d), 翻滚=%s, 无敌=%s(%.2f), 血量=%.1f/%.1f", 
+            "玩家%d: 地面=%s, 翻滚=%s, 碰撞层=%d, 碰撞掩码=%d, 血量=%.1f/%.1f", 
             player_id,
             is_on_floor() ? "是" : "否",
-            is_attacking ? "是" : "否",
-            (int)current_attack_type,
             is_rolling ? "是" : "否",
-            is_invincible ? "是" : "否",
-            invincible_timer,
+            current_layer,
+            current_mask,
             current_health,
             max_health
         ));
     }
 }
 
-// 无敌帧控制方法
+void Player::set_roll_collision(bool enabled) {
+    if (enabled) {
+        // 启用翻滚碰撞：移动到第3层，只检测第1层
+        set_collision_layer(roll_collision_layer);
+        set_collision_mask(roll_collision_mask);
+        UtilityFunctions::print(vformat("玩家%d启用翻滚碰撞: 层=%d, 掩码=%d", 
+            player_id, roll_collision_layer, roll_collision_mask));
+    } else {
+        // 恢复正常碰撞：回到第2层，检测第1层和第2层
+        set_collision_layer(normal_collision_layer);
+        set_collision_mask(normal_collision_mask);
+        UtilityFunctions::print(vformat("玩家%d恢复正常碰撞: 层=%d, 掩码=%d", 
+            player_id, normal_collision_layer, normal_collision_mask));
+    }
+}
+
 void Player::enable_invincibility() {
     is_invincible = true;
     invincible_timer = invincible_duration;
@@ -312,7 +359,7 @@ void Player::disable_invincibility() {
     
     if (hurtbox_area) {
         // 重新启用HurtBox的碰撞检测
-        // 假设HurtBox在第2层，AttackArea检测第2层
+        // 假设HurtBox在第2层
         hurtbox_area->set_collision_layer(2);
         hurtbox_area->set_collision_mask(0);
         
@@ -360,16 +407,6 @@ void Player::handle_input() {
     Array connected_joypads = input->get_connected_joypads();
     int connected_count = connected_joypads.size();
     
-    // 调试：打印连接的手柄
-    static bool printed_joypads = false;
-    if (!printed_joypads) {
-        UtilityFunctions::print(vformat("连接的手柄数量: %d", connected_count));
-        for (int i = 0; i < connected_count; i++) {
-            UtilityFunctions::print(vformat("  手柄%d: 设备索引 %d", i, (int)connected_joypads[i]));
-        }
-        printed_joypads = true;
-    }
-    
     // 如果只有一个手柄连接，玩家2使用键盘
     if (player_id == 2 && connected_count < 2) {
         // 玩家2使用键盘（临时方案）
@@ -388,11 +425,9 @@ void Player::handle_input_gamepad(const String& suffix) {
     input_direction = 0.0f;
     if (input->is_action_pressed("move_left" + suffix)) {
         input_direction -= 1.0f;
-        // UtilityFunctions::print(vformat("玩家%d 向左移动 (手柄)", player_id));
     }
     if (input->is_action_pressed("move_right" + suffix)) {
         input_direction += 1.0f;
-        // UtilityFunctions::print(vformat("玩家%d 向右移动 (手柄)", player_id));
     }
     
     // 垂直移动
@@ -402,10 +437,6 @@ void Player::handle_input_gamepad(const String& suffix) {
     
     // 动作按键
     jump_pressed = input->is_action_just_pressed("jump" + suffix);
-    if (jump_pressed) {
-        UtilityFunctions::print(vformat("玩家%d 按下跳跃 (手柄)", player_id));
-    }
-    
     run_pressed = input->is_action_pressed("run" + suffix);
     crouch_pressed = input->is_action_pressed("crouch" + suffix);
     roll_pressed = input->is_action_just_pressed("roll" + suffix);
@@ -425,11 +456,9 @@ void Player::handle_input_keyboard() {
         input_direction = 0.0f;
         if (input->is_action_pressed("ui_left")) {
             input_direction -= 1.0f;   // 左箭头
-            // UtilityFunctions::print("玩家2 向左移动 (键盘)");
         }
         if (input->is_action_pressed("ui_right")) {
             input_direction += 1.0f;  // 右箭头
-            // UtilityFunctions::print("玩家2 向右移动 (键盘)");
         }
         
         // 垂直移动
@@ -439,10 +468,6 @@ void Player::handle_input_keyboard() {
         
         // 动作按键
         jump_pressed = input->is_action_just_pressed("ui_select");   // 回车键
-        if (jump_pressed) {
-            UtilityFunctions::print("玩家2 按下跳跃 (键盘)");
-        }
-        
         run_pressed = input->is_action_pressed("ui_accept");         // Shift键
         crouch_pressed = input->is_action_pressed("ui_ctrl");        // Ctrl键
         roll_pressed = input->is_action_just_pressed("ui_home");     // Home键
@@ -728,7 +753,6 @@ void Player::update_state() {
     
     // 处理跳跃触发
     if (jump_pressed && is_on_floor() && !is_jumping && !is_landing && !is_crouching && !is_attacking) {
-        UtilityFunctions::print(vformat("玩家%d检测到跳跃按键，当前奔跑状态: %s", player_id, is_running ? "是" : "否"));
         if (is_running) {
             start_jump(FORWARD_JUMP);
         } else {
@@ -798,6 +822,8 @@ void Player::update_state() {
         roll_timer = roll_duration;
         // 翻滚开始时立即启用无敌状态
         enable_invincibility();
+        // 翻滚开始时启用翻滚碰撞设置
+        set_roll_collision(true);
     }
     
     // 奔跑状态更新
@@ -824,12 +850,11 @@ void Player::update_animation() {
 void Player::play_animation(const String& anim_name, bool force_restart) {
     if (!animated_sprite) return;
     
-    // 特别处理crouch_down动画，使用try-catch避免错误
+    // 特别处理crouch_down动画
     if (anim_name == "crouch_down") {
         try {
             if (force_restart || animated_sprite->get_animation() != StringName(anim_name)) {
                 animated_sprite->play(anim_name);
-                UtilityFunctions::print(vformat("玩家%d播放crouch_down动画", player_id));
             }
         } catch (...) {
             UtilityFunctions::printerr(vformat("玩家%d播放crouch_down动画时发生异常, 跳过", player_id));
@@ -854,7 +879,6 @@ void Player::play_animation(const String& anim_name, bool force_restart) {
     
     // 如果动画不同，或者强制重启，则播放新动画
     if (current_anim != target_anim || force_restart) {
-        UtilityFunctions::print(vformat("玩家%d播放动画: %s", player_id, anim_name));
         animated_sprite->play(anim_name);
     }
 }
@@ -910,15 +934,12 @@ void Player::start_landing() {
         if (run_pressed) {
             is_running = true;
         }
-        
-        UtilityFunctions::print(vformat("玩家%dforward_jump着陆, 不播放着陆动画", player_id));
     } else {
         // 其他跳跃类型落地，播放着陆动画
         is_landing = true;
         landing_timer = 0.2f;
         play_animation("landing", true);
         current_jump_type = NO_JUMP;
-        UtilityFunctions::print(vformat("玩家%d开始着陆，播放着陆动画", player_id));
     }
 }
 
@@ -959,6 +980,16 @@ void Player::reset_health() {
     // 确保无敌状态被重置
     disable_invincibility();
     
+    // 确保碰撞设置被重置
+    set_roll_collision(false);
+    
+    // 重新启用HurtBox
+    if (hurtbox_area) {
+        hurtbox_area->set_collision_layer(2);
+        hurtbox_area->set_collision_mask(0);
+        hurtbox_area->set_visible(true);
+    }
+    
     UtilityFunctions::print(vformat("玩家%d生命值已重置", player_id));
 }
 
@@ -966,6 +997,9 @@ void Player::die() {
     is_dead = true;
     set_velocity(Vector2(0, 0));
     play_animation("falling", true);
+    
+    // 死亡时恢复碰撞设置
+    set_roll_collision(false);
     
     // 死亡时禁用HurtBox
     if (hurtbox_area) {

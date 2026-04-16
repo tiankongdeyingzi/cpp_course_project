@@ -104,6 +104,12 @@ private:
     // 命中检测相关
     Array hit_targets;           // 已命中的目标（防止重复命中）
     
+    // 碰撞层控制
+    uint32_t normal_collision_layer;  // 正常碰撞层
+    uint32_t roll_collision_layer;    // 翻滚碰撞层
+    uint32_t normal_collision_mask;   // 正常碰撞掩码
+    uint32_t roll_collision_mask;     // 翻滚碰撞掩码
+    
     // 攻击检测方法
     void update_attack_area_position();
     void enable_attack_detection();
@@ -116,6 +122,9 @@ private:
     void disable_invincibility();
     void update_invincibility(double delta);
     void update_hurtbox_visibility();
+
+    // 碰撞层控制
+    void set_roll_collision(bool enabled);
 
     // 输入处理方法
     void handle_input_gamepad(const String& suffix);

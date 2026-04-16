@@ -780,7 +780,10 @@ size = Vector2(1013, 20)
 
 [node name="Player1" type="Player" parent="." unique_id=506854496]
 position = Vector2(172, 118)
+collision_layer = 2
+collision_mask = 3
 floor_constant_speed = true
+platform_wall_layers = 65535
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player1" unique_id=325028167]
 position = Vector2(0, 16)
@@ -811,6 +814,7 @@ position = Vector2(0, 16)
 shape = SubResource("CapsuleShape2D_htihw")
 
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=515266062]
+collision_mask = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=918532591]
 position = Vector2(238, 178)
@@ -821,7 +825,10 @@ shape = SubResource("RectangleShape2D_t7mhe")
 [node name="Player2" type="Player" parent="." unique_id=153519480]
 player_id = 2
 position = Vector2(233, 118)
+collision_layer = 2
+collision_mask = 3
 floor_constant_speed = true
+platform_wall_layers = 65535
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player2" unique_id=1889770096]
 position = Vector2(0, 16)
