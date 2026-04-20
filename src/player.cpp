@@ -7,6 +7,9 @@
 #include <godot_cpp/classes/collision_shape2d.hpp>
 #include <godot_cpp/classes/rectangle_shape2d.hpp>
 #include <godot_cpp/classes/character_body2d.hpp>
+#include <godot_cpp/classes/label.hpp>
+#include <godot_cpp/classes/texture_progress_bar.hpp>
+#include <godot_cpp/classes/node2d.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/variant/callable.hpp>
 
@@ -40,7 +43,7 @@ Player::Player() :
     attack_knockback(Vector2(200.0f, -50.0f)), // 击退力
     max_health(100.0f),          // 最大生命值
     current_health(100.0f),      // 当前生命值
-    health_regen_rate(0.0f),     // 生命恢复速率（0表示不自动恢复）
+    health_regen_rate(2.0f),     // 生命恢复速率（0表示不自动恢复）
     health_regen_timer(0.0f),    // 生命恢复计时器
     current_jump_type(NO_JUMP),
     is_jumping(false),
@@ -59,6 +62,9 @@ Player::Player() :
     animated_sprite(nullptr),
     attack_area(nullptr),
     hurtbox_area(nullptr),       // 引用手动创建的HurtBox节点
+    ui_pivot(nullptr),
+    name_label(nullptr),
+    health_bar(nullptr),
     attack_range(50.0f),        // 攻击范围
     attack_width(30.0f),         // 攻击宽度
     normal_collision_layer(0),   // 正常碰撞层
@@ -72,7 +78,7 @@ Player::~Player() {
 }
 
 void Player::_bind_methods() {
-    // ... 绑定方法保持不变 ...
+    
     // 基础属性
     ClassDB::bind_method(D_METHOD("get_walk_speed"), &Player::get_walk_speed);
     ClassDB::bind_method(D_METHOD("set_walk_speed", "speed"), &Player::set_walk_speed);
@@ -135,6 +141,10 @@ void Player::_bind_methods() {
     ClassDB::bind_method(D_METHOD("get_attack_area"), &Player::get_attack_area);
     ClassDB::bind_method(D_METHOD("get_hurtbox_area"), &Player::get_hurtbox_area);
     
+    // UI节点访问
+    ClassDB::bind_method(D_METHOD("get_name_label"), &Player::get_name_label);
+    ClassDB::bind_method(D_METHOD("get_health_bar"), &Player::get_health_bar);
+    
     // 编辑器属性
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "walk_speed"), "set_walk_speed", "get_walk_speed");
     ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "run_speed"), "set_run_speed", "get_run_speed");
@@ -194,6 +204,9 @@ void Player::_ready() {
         UtilityFunctions::printerr("Player: 未能找到手动创建的HurtBox节点。请确保在场景中为该Player添加了名为'HurtBox'的Area2D子节点。");
     }
     
+    // 初始化UI
+    initialize_ui();
+    
     // 调试：打印当前碰撞设置
     uint32_t current_layer = get_collision_layer();
     uint32_t current_mask = get_collision_mask();
@@ -220,6 +233,79 @@ void Player::_ready() {
     UtilityFunctions::print(vformat("玩家 %d 碰撞设置: 正常层=%d, 正常掩码=%d, 翻滚层=%d, 翻滚掩码=%d", 
         player_id, normal_collision_layer, normal_collision_mask, 
         roll_collision_layer, roll_collision_mask));
+}
+
+void Player::initialize_ui() {
+    // 获取UI节点
+    ui_pivot = get_node<Node2D>(NodePath("UIPivot"));
+    if (!ui_pivot) {
+        UtilityFunctions::printerr("Player: 未能找到 UIPivot 节点");
+        return;
+    }
+    
+    // 获取名称标签
+    name_label = get_node<Label>(NodePath("UIPivot/NameLabel"));
+    if (!name_label) {
+        UtilityFunctions::printerr("Player: 未能找到 NameLabel 节点");
+    } else {
+        // 根据玩家ID设置名称
+        String player_name = vformat("P%d", player_id);
+        name_label->set_text(player_name);
+        
+        // 根据玩家ID设置不同颜色
+        Color label_color;
+        if (player_id == 1) {
+            label_color = Color(1.0f, 0.2f, 0.2f);  // 红色
+        } else {
+            label_color = Color(0.2f, 0.4f, 1.0f);  // 蓝色
+        }
+        name_label->set("theme_override_colors/font_color", label_color);
+        
+        UtilityFunctions::print(vformat("玩家 %d 名称标签设置为: %s", player_id, player_name));
+    }
+    
+    // 获取血条
+health_bar = get_node<TextureProgressBar>(NodePath("UIPivot/HealthBar"));
+if (!health_bar) {
+    UtilityFunctions::printerr("Player: 未能找到 HealthBar 节点");
+} else {
+    // 设置血条的最大值和初始值
+    health_bar->set_max(max_health);
+    health_bar->set_value(current_health);
+    
+    // 血条颜色统一为红色
+    health_bar->set("tint_progress", Color(0.8f, 0.1f, 0.1f));
+    
+    UtilityFunctions::print(vformat("玩家 %d 血条初始化完成，最大血量: %.1f", player_id, max_health));
+}
+}
+
+void Player::update_ui() {
+    if (is_dead) {
+        // 死亡时隐藏UI
+        if (ui_pivot) {
+            ui_pivot->set_visible(false);
+        }
+        return;
+    }
+    
+    // 确保UI可见
+    if (ui_pivot) {
+        ui_pivot->set_visible(true);
+    }
+    
+    // 更新血条
+    update_health_bar();
+}
+
+void Player::update_health_bar() {
+    if (!health_bar || is_dead) return;
+    
+    // 设置血条值
+    health_bar->set_value(current_health);
+    
+    // 血条颜色始终为红色
+    health_bar->set("tint_progress", Color(0.8f, 0.1f, 0.1f));
 }
 
 void Player::_physics_process(double delta) {
@@ -275,7 +361,10 @@ void Player::_physics_process(double delta) {
     // 12. 更新动画
     update_animation();
     
-    // 13. 更新翻滚计时
+    // 13. 更新UI
+    update_ui();
+    
+    // 14. 更新翻滚计时
     if (is_rolling) {
         roll_timer -= delta;
         if (roll_timer <= 0) {
@@ -287,10 +376,10 @@ void Player::_physics_process(double delta) {
         }
     }
     
-    // 14. 记录上一帧的crouch_pressed状态
+    // 15. 记录上一帧的crouch_pressed状态
     crouch_was_pressed = crouch_pressed;
 
-    // 15. 处理生命恢复
+    // 16. 处理生命恢复
     if (health_regen_rate > 0.0f && current_health < max_health && !is_dead) {
         health_regen_timer += delta;
         if (health_regen_timer >= 1.0f) {  // 每秒恢复一次
@@ -299,7 +388,7 @@ void Player::_physics_process(double delta) {
         }
     }
     
-    // 16. 更新无敌帧
+    // 17. 更新无敌帧
     update_invincibility(delta);
     
     // 调试输出
@@ -843,6 +932,14 @@ void Player::update_animation() {
         if (should_flip != is_sprite_flipped_h) {
             animated_sprite->set_flip_h(should_flip);
             is_sprite_flipped_h = should_flip;
+            
+            // 翻转时，保持UI不翻转
+            if (ui_pivot) {
+                // 反转UI的X缩放，使UI始终朝向正确的方向
+                Vector2 ui_scale = ui_pivot->get_scale();
+                ui_scale.x = should_flip ? -1.0f : 1.0f;
+                ui_pivot->set_scale(ui_scale);
+            }
         }
     }
 }
@@ -951,6 +1048,9 @@ void Player::take_damage(float damage) {
     UtilityFunctions::print(vformat("玩家%d受到伤害: %.1f, 剩余生命: %.1f/%.1f", 
         player_id, damage, current_health, max_health));
     
+    // 更新UI
+    update_health_bar();
+    
     // 受到伤害时，启动短暂无敌帧
     enable_invincibility();
     
@@ -971,6 +1071,9 @@ void Player::heal(float amount) {
     
     UtilityFunctions::print(vformat("玩家%d恢复生命: %.1f, 当前生命: %.1f/%.1f", 
         player_id, amount, current_health, max_health));
+    
+    // 更新UI
+    update_health_bar();
 }
 
 void Player::reset_health() {
@@ -990,6 +1093,9 @@ void Player::reset_health() {
         hurtbox_area->set_visible(true);
     }
     
+    // 更新UI
+    update_ui();
+    
     UtilityFunctions::print(vformat("玩家%d生命值已重置", player_id));
 }
 
@@ -1006,6 +1112,9 @@ void Player::die() {
         hurtbox_area->set_collision_layer(0);
         hurtbox_area->set_collision_mask(0);
     }
+    
+    // 更新UI（隐藏UI）
+    update_ui();
     
     UtilityFunctions::print(vformat("玩家%d死亡", player_id));
 }
@@ -1076,6 +1185,10 @@ void Player::set_max_health(float health) {
     if (current_health > max_health) {
         current_health = max_health;
     }
+    // 更新血条最大值
+    if (health_bar) {
+        health_bar->set_max(max_health);
+    }
 }
 
 float Player::get_current_health() const { 
@@ -1092,6 +1205,8 @@ void Player::set_current_health(float health) {
     } else if (current_health > max_health) {
         current_health = max_health;
     }
+    // 更新血条
+    update_health_bar();
 }
 
 float Player::get_health_percentage() const { 
@@ -1120,6 +1235,15 @@ Area2D* Player::get_attack_area() const {
 
 Area2D* Player::get_hurtbox_area() const { 
     return hurtbox_area; 
+}
+
+// UI节点访问
+Label* Player::get_name_label() const { 
+    return name_label; 
+}
+
+TextureProgressBar* Player::get_health_bar() const { 
+    return health_bar; 
 }
 
 } // namespace godot

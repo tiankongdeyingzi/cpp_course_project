@@ -11,6 +11,10 @@
 [ext_resource type="Texture2D" uid="uid://b50xgxj1ch4ck" path="res://assets/Animations/Punch_2.png" id="8_t5m10"]
 [ext_resource type="Texture2D" uid="uid://c3am463y2vwfs" path="res://assets/Animations/Upward Jump.png" id="9_knks7"]
 [ext_resource type="Texture2D" uid="uid://bey6kmgkxqd6a" path="res://assets/Animations/Walking.png" id="11_kw1wa"]
+[ext_resource type="Texture2D" uid="uid://de5x6wfi35732" path="res://assets/ui/blood.png" id="12_wtfh1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_t7mhe"]
+size = Vector2(1013, 20)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_eobj5"]
 radius = 8.0
@@ -773,10 +777,14 @@ radius = 13.0
 radius = 8.0
 height = 68.0
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_t7mhe"]
-size = Vector2(1013, 20)
-
 [node name="Node2D" type="Node2D" unique_id=482880483]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=515266062]
+collision_mask = 7
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=918532591]
+position = Vector2(238, 178)
+shape = SubResource("RectangleShape2D_t7mhe")
 
 [node name="Player1" type="Player" parent="." unique_id=506854496]
 position = Vector2(172, 118)
@@ -793,8 +801,6 @@ shape = SubResource("CapsuleShape2D_eobj5")
 position = Vector2(0, -14)
 sprite_frames = SubResource("SpriteFrames_xnn3s")
 animation = &"falling"
-frame = 8
-frame_progress = 0.25007623
 speed_scale = 1.5
 script = SubResource("GDScript_wtfh1")
 
@@ -813,14 +819,22 @@ collision_mask = 0
 position = Vector2(0, 16)
 shape = SubResource("CapsuleShape2D_htihw")
 
-[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=515266062]
-collision_mask = 7
+[node name="UIPivot" type="Node2D" parent="Player1" unique_id=457034439]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=918532591]
-position = Vector2(238, 178)
-shape = SubResource("RectangleShape2D_t7mhe")
+[node name="NameLabel" type="Label" parent="Player1/UIPivot" unique_id=1913691905]
+offset_left = -10.0
+offset_top = -57.0
+offset_right = 10.0
+offset_bottom = -34.0
+text = "p1"
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=1466008533]
+[node name="HealthBar" type="TextureProgressBar" parent="Player1/UIPivot" unique_id=1908127892]
+offset_left = -18.0
+offset_top = -32.0
+offset_right = 19.0
+offset_bottom = -22.0
+step = 10.0
+texture_progress = ExtResource("12_wtfh1")
 
 [node name="Player2" type="Player" parent="." unique_id=153519480]
 player_id = 2
@@ -837,7 +851,7 @@ shape = SubResource("CapsuleShape2D_eobj5")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Player2" unique_id=1647250887]
 position = Vector2(0, -14)
 sprite_frames = SubResource("SpriteFrames_xnn3s")
-animation = &"roll"
+animation = &"falling"
 speed_scale = 1.5
 script = SubResource("GDScript_wtfh1")
 
@@ -855,3 +869,22 @@ collision_mask = 0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player2/HurtBox" unique_id=1624471939]
 position = Vector2(0, 16)
 shape = SubResource("CapsuleShape2D_htihw")
+
+[node name="UIPivot" type="Node2D" parent="Player2" unique_id=768019557]
+
+[node name="NameLabel" type="Label" parent="Player2/UIPivot" unique_id=1770548807]
+offset_left = -10.0
+offset_top = -57.0
+offset_right = 10.0
+offset_bottom = -34.0
+text = "p2"
+
+[node name="HealthBar" type="TextureProgressBar" parent="Player2/UIPivot" unique_id=539583452]
+offset_left = -18.0
+offset_top = -32.0
+offset_right = 19.0
+offset_bottom = -22.0
+step = 10.0
+texture_progress = ExtResource("12_wtfh1")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1466008533]

@@ -5,6 +5,9 @@
 #include <godot_cpp/classes/animated_sprite2d.hpp>
 #include <godot_cpp/classes/area2d.hpp>
 #include <godot_cpp/classes/collision_shape2d.hpp>
+#include <godot_cpp/classes/label.hpp>
+#include <godot_cpp/classes/texture_progress_bar.hpp>
+#include <godot_cpp/classes/node2d.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/array.hpp>
 
@@ -97,6 +100,11 @@ private:
     // 受击区域 - 引用您手动创建的HurtBox节点
     Area2D* hurtbox_area;
     
+    // UI元素
+    Node2D* ui_pivot;
+    Label* name_label;
+    TextureProgressBar* health_bar;
+    
     // 攻击范围参数
     float attack_range;          // 攻击范围
     float attack_width;          // 攻击宽度
@@ -129,6 +137,11 @@ private:
     // 输入处理方法
     void handle_input_gamepad(const String& suffix);
     void handle_input_keyboard();
+
+    // UI控制方法
+    void initialize_ui();
+    void update_ui();
+    void update_health_bar();
 
 protected:
     static void _bind_methods();
@@ -226,6 +239,10 @@ public:
     // 区域节点访问（用于调试）
     Area2D* get_attack_area() const;
     Area2D* get_hurtbox_area() const;
+    
+    // UI节点访问
+    Label* get_name_label() const;
+    TextureProgressBar* get_health_bar() const;
 };
 
 } // namespace godot
