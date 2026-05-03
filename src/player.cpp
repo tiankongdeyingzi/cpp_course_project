@@ -58,7 +58,7 @@ Player::Player() :
     roll_pressed(false),
     attack_1_pressed(false),   // 攻击1
     attack_2_pressed(false),   // 攻击2
-    player_id(1),              // 默认玩家1
+    player_id(1),              
     animated_sprite(nullptr),
     attack_area(nullptr),
     hurtbox_area(nullptr),       // 引用手动创建的HurtBox节点

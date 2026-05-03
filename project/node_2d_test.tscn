@@ -888,3 +888,5 @@ step = 10.0
 texture_progress = ExtResource("12_wtfh1")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1466008533]
+
+[node name="CameraController" type="CameraController" parent="Camera2D" unique_id=1706677207]
