@@ -79,14 +79,14 @@ private:
     
     // 输入状态
     float input_direction;
-    float vertical_input;     // 保留，但不再用于梯子
+    float vertical_input;     
     bool jump_pressed;
     bool run_pressed;
     bool crouch_pressed;
     bool crouch_was_pressed;
     bool roll_pressed;
-    bool attack_1_pressed;    // 攻击1（原左键）
-    bool attack_2_pressed;    // 攻击2（原右键）
+    bool attack_1_pressed;    // 攻击1
+    bool attack_2_pressed;    // 攻击2
     
     // 玩家标识
     int player_id;            // 玩家ID (1或2)
@@ -95,9 +95,9 @@ private:
     AnimatedSprite2D* animated_sprite;
     String animated_sprite_path;
     
-    // 攻击检测区域 - 引用您手动创建的AttackArea节点
+    // 攻击检测区域 
     Area2D* attack_area;
-    // 受击区域 - 引用您手动创建的HurtBox节点
+    // 受击区域 
     Area2D* hurtbox_area;
     
     // UI元素
@@ -110,7 +110,7 @@ private:
     float attack_width;          // 攻击宽度
     
     // 命中检测相关
-    Array hit_targets;           // 已命中的目标（防止重复命中）
+    Array hit_targets;           // 已命中的目标
     
     // 碰撞层控制
     uint32_t normal_collision_layer;  // 正常碰撞层

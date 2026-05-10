@@ -733,7 +733,7 @@ void Player::disable_attack_detection() {
 void Player::process_hit_detection() {
     if (!attack_area || !is_attacking) return;
     
-    // 获取攻击区域内的所有重叠的区域（HurtBox）
+    // 获取HurtBox
     Array overlapping_areas = attack_area->get_overlapping_areas();
     
     for (int i = 0; i < overlapping_areas.size(); i++) {
@@ -745,7 +745,7 @@ void Player::process_hit_detection() {
         // 跳过自己的HurtBox
         if (area == hurtbox_area) continue;
         
-        // 获取HurtBox的所有者（应该是另一个Player）
+        // 获取HurtBox的所有者
         Node* owner = area->get_parent();
         if (!owner) continue;
         
