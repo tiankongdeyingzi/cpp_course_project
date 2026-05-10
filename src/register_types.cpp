@@ -7,6 +7,7 @@
 
 #include "example_class.h"
 #include "player.h" 
+#include "CameraController.h"
 
 using namespace godot;
 
@@ -17,6 +18,7 @@ void initialize_gdextension_types(ModuleInitializationLevel p_level)
 	}
 	GDREGISTER_CLASS(ExampleClass);
 	GDREGISTER_CLASS(Player);
+	GDREGISTER_CLASS(CameraController);
 }
 
 void uninitialize_gdextension_types(ModuleInitializationLevel p_level) {
